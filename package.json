@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.1",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2"
+  },
+  "name": "node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^5.1.0",
+    "morgan": "^1.10.0",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "slugify": "^1.6.6",
+    "undici-types": "^6.20.0",
+    "uuid": "^11.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec ts-node server.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
