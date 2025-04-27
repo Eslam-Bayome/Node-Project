@@ -83,6 +83,16 @@ const deleteTour = (req: Request, res: Response) => {
     data: null,
   });
 };
+
+const checkBody = (req: Request, res: Response, next: any) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(400).json({
+      status: 'fail',
+      message: 'name and price are required',
+    });
+  }
+  next();
+};
 module.exports = {
   getAllTours,
   getTour,
@@ -90,4 +100,5 @@ module.exports = {
   updateTour,
   deleteTour,
   checkId,
+  checkBody,
 };
