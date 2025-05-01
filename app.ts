@@ -5,6 +5,10 @@ import tourRouter from './routes/tourRoutes';
 
 const app = express();
 
+// optional logger middleware on development
+if (process.env.NODE_ENV === 'development') {
+  app.use(pino());
+}
 // ?========================================================================================================================================================================
 // we have to use middleware so the body data become awailable in the req object
 app.use(express.json());
@@ -14,7 +18,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(pino());
+//static file serving with middleware
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   (req as any).currentTime = new Date().toISOString();
