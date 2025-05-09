@@ -1,24 +1,21 @@
 import express, { NextFunction, Request, Response } from 'express';
-
-const {
+import {
   getAllTours,
   getTour,
   createTour,
   updateTour,
   deleteTour,
-  checkId,
-  checkBody,
-} = require('./../controllers/tourController');
+} from '../controllers/tourController';
 
 const tourRouter = express.Router();
 // ? a param middle ware is a function that is called when a request matches a route parameter and it check if it have a valid id
-tourRouter.param('id', checkId);
+// tourRouter.param('id', checkId);
 
 tourRouter.get(`/`, getAllTours);
 
 tourRouter.get(`/:id`, getTour);
 
-tourRouter.post(`/`, checkBody, createTour);
+tourRouter.post(`/`, createTour);
 
 tourRouter.patch(`/:id`, updateTour);
 
