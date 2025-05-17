@@ -2,6 +2,7 @@ const fs = require('fs');
 import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Tour } from '../models/tourModel';
+import { APIFeatures } from '../utils/apiFeatures';
 
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours.json`, 'utf-8')
@@ -13,9 +14,31 @@ const handleError = (err: any, req: Request, res: Response) => {
   });
 };
 
+const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
+  (req as any).myQuery = {};
+  (req as any).myQuery.limit = '5';
+  (req as any).myQuery.sort = '-averageRating,price';
+  (req as any).myQuery.fields = 'name,price,averageRating,summary,difficulty';
+  next();
+};
 const getAllTours = async (req: Request, res: Response) => {
+  let modifiedQuery = req.query;
+
+  if ((req as any).myQuery) {
+    modifiedQuery = {
+      ...req.query,
+      ...(req as any).myQuery,
+    };
+  }
+
   try {
-    const tours = await Tour.find();
+    const features = new APIFeatures(Tour.find(), modifiedQuery);
+    let finalQuery = features.filter().sort().limitFields().paginate();
+
+    //Execution query
+    const tours = await finalQuery.query;
+
+    //Send Response
     res.status(200).json({
       status: 'success',
       totalCount: tours.length,
@@ -102,4 +125,11 @@ const deleteTour = async (req: Request, res: Response) => {
   }
 };
 
-export { getAllTours, getTour, createTour, updateTour, deleteTour };
+export {
+  getAllTours,
+  getTour,
+  createTour,
+  updateTour,
+  deleteTour,
+  aliasTopTours,
+};
