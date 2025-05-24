@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import { isAlpha } from 'validator';
 
 const tourSchema = new mongoose.Schema(
   {
@@ -8,6 +9,16 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true,
+      maxLength: [20, 'A tour name must have less or equal than 20 characters'],
+      minLength: [5, 'A tour name must have more or equal than 5 characters'],
+      immutable: true, // this will make the name immutable, it can't be changed after creation
+      validate: {
+        validator: function (val) {
+          // Only check alphabetic characters and ignore spaces
+          return isAlpha(val.replaceAll(' ', ''));
+        },
+        message: 'A tour name must only contain alphabetic characters',
+      },
     },
     duration: {
       type: Number,
@@ -20,12 +31,15 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A tour must have a difficulty'],
-      enum: ['easy', 'medium', 'difficult'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty is either: easy, medium, or difficult',
+      },
     },
     ratingsAverage: {
       type: Number,
       default: 4.5,
-      min: [1, 'Rating must be above 1.0'],
+      min: [1, 'Rating must be above 1.0'], //min and max can work with numbers and dates
       max: [5, 'Rating must be below 5.0'],
     },
     ratingsQuantity: {
@@ -36,7 +50,15 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'A tour must have a price'],
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (val: number) {
+          return val < (this as any).price; // this will not work on update
+        },
+        message: 'Discount price {VALUE} should be below regular price',
+      },
+    },
     summary: {
       type: String,
       trim: true, // removes white spaces in the beginning and end

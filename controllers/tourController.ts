@@ -100,7 +100,7 @@ const updateTour = async (req: Request, res: Response) => {
     // });
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
+      runValidators: true, // if it is false the validato will not rereun and this may lead to unwanted data
     });
     res.status(200).json({
       status: 'success',
