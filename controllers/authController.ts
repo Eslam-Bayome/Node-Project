@@ -1,3 +1,4 @@
+import { promisify } from 'util';
 import { User } from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
 const jwt = require('jsonwebtoken');
@@ -75,3 +76,59 @@ export const login = catchAsync(async (req: any, res: any, next) => {
     token: token,
   });
 });
+
+export const protectedMiddlewareRoute = catchAsync(
+  async (req: any, res: any, next: any) => {
+    // 1) Getting token and check if it exists
+    let token = req.headers.authorization;
+
+    if (!token || !token.startsWith('Bearer ')) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not logged in!',
+      });
+    }
+
+    token = token.split(' ')[1]; // Bearer token
+
+    if (!token) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not logged in!',
+      });
+    }
+
+    // 2) Validate the token
+    const isValidToken = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    // 3) Check if user still exists
+    const user = await User.findById(isValidToken.id);
+
+    if (!user) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'The user belonging to this token no longer exists.',
+      });
+    }
+
+    // 4) Check if user changed password after the token was extracted
+    let isPasswordChanged = false;
+    if (typeof user.isPasswordChanged === 'function') {
+      isPasswordChanged = user.isPasswordChanged(isValidToken.iat);
+    }
+
+    if (isPasswordChanged) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'User recently changed password! Please log in again.',
+      });
+    }
+
+    // 5) Grant access to protected route
+    req.user = user; // attach the user to the request object
+    next();
+  }
+);

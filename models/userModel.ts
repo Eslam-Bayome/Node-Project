@@ -8,10 +8,12 @@ interface IUser extends Document {
   photo: string;
   password: string;
   passwordConfirm: string;
+  lastPasswordChangeAt?: Date;
   correctPassword(params: {
     candidatePassword: string;
     userPassword: string;
   }): Promise<boolean>;
+  isPasswordChanged?: (JWTTimestamp: number) => boolean;
 }
 
 // Simple schema - no complex generics
@@ -45,6 +47,9 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same!',
     },
   },
+  lastPasswordChangeAt: {
+    type: Date,
+  },
 });
 
 // Add the method
@@ -56,6 +61,12 @@ userSchema.methods.correctPassword = async function ({
   userPassword: string;
 }): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.isPasswordChanged = function (JWTTimestamp: number) {
+  if (!this.lastPasswordChangeAt) return false;
+  const changedTimeStamp = this.lastPasswordChangeAt.getTime() / 1000;
+  return JWTTimestamp < changedTimeStamp;
 };
 
 // Simple model creation

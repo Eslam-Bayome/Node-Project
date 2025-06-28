@@ -9,6 +9,7 @@ import {
   deleteTour,
   getMonthlyPlan,
 } from '../controllers/tourController';
+import { protectedMiddlewareRoute } from '../controllers/authController';
 
 const tourRouter = express.Router();
 
@@ -18,7 +19,7 @@ tourRouter.route('/monthly-stats').get(getMonthlyPlan);
 // ? a param middle ware is a function that is called when a request matches a route parameter and it check if it have a valid id
 // tourRouter.param('id', checkId);
 tourRouter.route('/top-5').get(aliasTopTours, getAllTours);
-tourRouter.get(`/`, getAllTours);
+tourRouter.get(`/`, protectedMiddlewareRoute, getAllTours);
 
 tourRouter.get(`/:id`, getTour);
 
