@@ -9,7 +9,10 @@ import {
   deleteTour,
   getMonthlyPlan,
 } from '../controllers/tourController';
-import { protectedMiddlewareRoute } from '../controllers/authController';
+import {
+  isUserhasAllowedRole,
+  protectedMiddlewareRoute,
+} from '../controllers/authController';
 
 const tourRouter = express.Router();
 
@@ -27,7 +30,12 @@ tourRouter.post(`/`, createTour);
 
 tourRouter.patch(`/:id`, updateTour);
 
-tourRouter.delete(`/:id`, deleteTour);
+tourRouter.delete(
+  `/:id`,
+  protectedMiddlewareRoute, // this middleware will check if the user is logged in
+  isUserhasAllowedRole('admin', 'lead-guide'), // this middleware will check if the user has the allowed role
+  deleteTour
+);
 
 // app.route(baseRoute).get(getAllTours).post(createTour);
 // app.route(`${baseRoute}/:id`).get(getTour).patch(updateTour).delete(deleteTour);

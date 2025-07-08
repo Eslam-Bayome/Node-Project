@@ -27,6 +27,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  role: {
+    type: String,
+    enum: ['user', 'admin', 'guide', 'lead-guide'],
+    default: 'user',
+  },
   photo: {
     type: String,
     default: 'default.jpg',
@@ -52,6 +57,12 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = ''; // Clear passwordConfirm after hashing
+  next();
+});
 // Add the method
 userSchema.methods.correctPassword = async function ({
   candidatePassword,

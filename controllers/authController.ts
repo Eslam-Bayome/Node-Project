@@ -24,7 +24,7 @@ export const signup = catchAsync(async (req: any, res: any) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     photo: req.body.photo,
-    // role: req.body.role || 'user',
+    role: req.body.role || 'user',
   });
   // first argument is the payload, second is the secret key .. // third is the options like expiration time of the jwt token
   const token = signToken(newUser._id, newUser.email, newUser.photo);
@@ -132,3 +132,23 @@ export const protectedMiddlewareRoute = catchAsync(
     next();
   }
 );
+
+export const isUserhasAllowedRole = (...roles: string[]) => {
+  return (req: any, res: any, next: any) => {
+    if (!req.user) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not logged in!',
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'You do not have permission to perform this action!',
+      });
+    }
+
+    next();
+  };
+};
