@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 const bcrypt = require('bcrypt');
-
+const crypto = require('crypto');
 // Simple interface - just extend Document directly
 interface IUser extends Document {
   name: string;
@@ -9,11 +9,14 @@ interface IUser extends Document {
   password: string;
   passwordConfirm: string;
   lastPasswordChangeAt?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
   correctPassword(params: {
     candidatePassword: string;
     userPassword: string;
   }): Promise<boolean>;
   isPasswordChanged?: (JWTTimestamp: number) => boolean;
+  createPasswordResetToken?: () => string;
 }
 
 // Simple schema - no complex generics
@@ -55,6 +58,8 @@ const userSchema = new mongoose.Schema({
   lastPasswordChangeAt: {
     type: Date,
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -80,5 +85,20 @@ userSchema.methods.isPasswordChanged = function (JWTTimestamp: number) {
   return JWTTimestamp < changedTimeStamp;
 };
 
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+  // Return the plain token, not the hashed one
+  return resetToken;
+};
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.lastPasswordChangeAt = new Date();
+  next();
+});
 // Simple model creation
 export const User = mongoose.model<IUser>('User', userSchema);

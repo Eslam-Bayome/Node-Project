@@ -1,5 +1,10 @@
 import express from 'express';
-import { login, signup } from '../controllers/authController';
+import {
+  forgetPassword,
+  login,
+  resetPassword,
+  signup,
+} from '../controllers/authController';
 const {
   getAllUsers,
   getUser,
@@ -14,6 +19,8 @@ const userRouter = express.Router();
 
 userRouter.post('/signup', signup);
 userRouter.post('/login', login);
+userRouter.post('/forget-password', forgetPassword);
+userRouter.patch('/reset-password/:token', resetPassword);
 
 //? ==============================================================================================================================================================================================3
 userRouter.route('/').get(getAllUsers).post(createUser);
