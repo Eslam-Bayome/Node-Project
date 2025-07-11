@@ -97,7 +97,7 @@ userSchema.methods.createPasswordResetToken = function () {
 };
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
-  this.lastPasswordChangeAt = new Date();
+  this.lastPasswordChangeAt = new Date(Date.now() - 1000); // if u get a problem that the token is created before the password is changed, you can use this line to update the lastPasswordChangeAt
   next();
 });
 // Simple model creation
