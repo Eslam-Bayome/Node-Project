@@ -231,3 +231,41 @@ export const resetPassword = async (req: any, res: any, next: any) => {
     token: token,
   });
 };
+
+export const updatePassword = catchAsync(
+  async (req: any, res: any, next: any) => {
+    //1) get user from collection
+    const user = await User.findById(req.user.id).select('+password');
+    //2) check if posted current password is correct
+    if (!user) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'You are not logged in!',
+      });
+    }
+    const isPasswordCorrect = await user.correctPassword({
+      candidatePassword: req.body.currentPassword,
+      userPassword: user.password,
+    });
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({
+        status: 'fail',
+        message: 'Your current password is wrong.',
+      });
+    }
+
+    //3) if so update password
+    user.password = req.body.newPassword;
+    user.passwordConfirm = req.body.newPasswordConfirm;
+    user.save();
+    // we do user.save() not all in one as findByIdAndUpdate, because it will not trigger the pre save middleeware aand also the validate of the passwordConfirm field
+
+    const token = signToken(user._id, user.email, user.photo);
+    //4) log user in , send jwt
+    res.status(200).json({
+      status: 'success',
+      token: token,
+    });
+  }
+);

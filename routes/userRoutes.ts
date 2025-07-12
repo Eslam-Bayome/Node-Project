@@ -2,8 +2,10 @@ import express from 'express';
 import {
   forgetPassword,
   login,
+  protectedMiddlewareRoute,
   resetPassword,
   signup,
+  updatePassword,
 } from '../controllers/authController';
 const {
   getAllUsers,
@@ -21,6 +23,7 @@ userRouter.post('/signup', signup);
 userRouter.post('/login', login);
 userRouter.post('/forget-password', forgetPassword);
 userRouter.patch('/reset-password/:token', resetPassword);
+userRouter.patch('/update-password', protectedMiddlewareRoute, updatePassword);
 
 //? ==============================================================================================================================================================================================3
 userRouter.route('/').get(getAllUsers).post(createUser);
