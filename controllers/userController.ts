@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { User } from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
 
@@ -18,7 +18,37 @@ const getUser = (req: Request, res: Response) => {
     message: 'This route is not yet defined',
   });
 };
+const updateMe = catchAsync(
+  async (req: any, res: Response, next: NextFunction) => {
+    if (
+      Object.keys(req.body).find((key) =>
+        key.toLowerCase().includes('password')
+      )
+    ) {
+      return res.status(400).json({
+        status: 'fail',
+        message:
+          'This route is not for password updates. Please use /update-password.',
+      });
+    }
 
+    // we should handle the allowed properies better than that
+    delete req.body.role;
+    delete req.body.email;
+    delete req.body._id;
+
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, {
+      new: true, // to return the new data after update not the old one
+      runValidators: true,
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        updatedUser,
+      },
+    });
+  }
+);
 const createUser = (req: Request, res: Response) => {
   res.status(500).json({
     status: 'error',
@@ -38,7 +68,14 @@ const deleteUser = (req: Request, res: Response) => {
   });
 };
 
-module.exports = { getAllUsers, getUser, createUser, updateUser, deleteUser };
+module.exports = {
+  getAllUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+  updateMe,
+};
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');
 // const uri = "mongodb+srv://<db_username>:<db_password>@natoursv1.cj4lvsk.mongodb.net/?retryWrites=true&w=majority&appName=NatoursV1";
