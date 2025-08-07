@@ -3,7 +3,11 @@ import { User } from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const users = await User.find();
+  const users = await User.find({
+    active: {
+      $ne: false,
+    },
+  });
   res.status(200).json({
     status: 'success',
     results: users.length,
@@ -49,6 +53,23 @@ const updateMe = catchAsync(
     });
   }
 );
+const deleteMe = catchAsync(async (req: any, res: Response) => {
+  const deletedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    {
+      active: false,
+    },
+    {
+      new: true, // to return the new data after update not the old one
+      runValidators: true,
+    }
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: null,
+  });
+});
 const createUser = (req: Request, res: Response) => {
   res.status(500).json({
     status: 'error',
@@ -75,6 +96,7 @@ module.exports = {
   updateUser,
   deleteUser,
   updateMe,
+  deleteMe,
 };
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');

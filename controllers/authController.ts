@@ -26,7 +26,7 @@ export const signup = catchAsync(async (req: any, res: any) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     photo: req.body.photo,
-    role: req.body.role || 'user',
+    role: 'user',
   });
   // first argument is the payload, second is the secret key .. // third is the options like expiration time of the jwt token
   const token = signToken(newUser._id, newUser.email, newUser.photo);
@@ -52,7 +52,7 @@ export const login = catchAsync(async (req: any, res: any, next) => {
     email: email,
   }).select('+password'); // this will return the password field as well, since we set select: false in the user model
 
-  if (!user) {
+  if (!user || !user.active) {
     return res.status(401).json({
       status: 'fail',
       message: 'Incorrect email or password!',

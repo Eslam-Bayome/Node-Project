@@ -14,6 +14,7 @@ const {
   updateUser,
   deleteUser,
   updateMe,
+  deleteMe,
 } = require('./../controllers/userController');
 
 // this process called mounting a router , so mounting new router on a route
@@ -26,6 +27,7 @@ userRouter.post('/forget-password', forgetPassword);
 userRouter.patch('/reset-password/:token', resetPassword);
 userRouter.patch('/update-password', protectedMiddlewareRoute, updatePassword);
 userRouter.patch('/update-me', protectedMiddlewareRoute, updateMe);
+userRouter.delete('/delete-me', protectedMiddlewareRoute, deleteMe);
 
 //? ==============================================================================================================================================================================================3
 userRouter.route('/').get(getAllUsers).post(createUser);

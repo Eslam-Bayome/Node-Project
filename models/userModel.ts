@@ -7,6 +7,7 @@ interface IUser extends Document {
   email: string;
   photo: string;
   password: string;
+  active: boolean;
   passwordConfirm: string;
   lastPasswordChangeAt?: Date;
   passwordResetToken?: string;
@@ -58,8 +59,18 @@ const userSchema = new mongoose.Schema({
   lastPasswordChangeAt: {
     type: Date,
   },
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
   passwordResetToken: String,
   passwordResetExpires: Date,
+});
+
+userSchema.pre('find', function (next) {
+  this.find({ active: { $ne: false } });
+  next();
 });
 
 userSchema.pre('save', async function (next) {
