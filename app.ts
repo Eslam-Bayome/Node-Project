@@ -2,6 +2,7 @@ import pino from 'pino-http';
 import express from 'express';
 import userRouter from './routes/userRoutes';
 import tourRouter from './routes/tourRoutes';
+import { limiter } from './utils/rateLimiter';
 
 const app = express();
 
@@ -26,7 +27,12 @@ app.use((req, res, next) => {
 
   next();
 });
+
 // ?========================================================================================================================================================================
+app.use(
+  '/api/v1',
+  limiter(1, 100, 'Too many requests from this IP, please try again in an hour')
+);
 
 app.use('/api/v1/tours', tourRouter);
 
