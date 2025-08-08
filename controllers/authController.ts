@@ -65,7 +65,7 @@ export const login = catchAsync(async (req: any, res: any, next) => {
 
   const user = await User.findOne({
     email: email,
-  }).select('+password'); // this will return the password field as well, since we set select: false in the user model
+  }).select('+password +active'); // this will return the password field as well, since we set select: false in the user model
 
   if (!user || !user.active) {
     return res.status(401).json({

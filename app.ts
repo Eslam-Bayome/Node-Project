@@ -5,8 +5,9 @@ import tourRouter from './routes/tourRoutes';
 import { limiter } from './utils/rateLimiter';
 import helmet from 'helmet';
 
-const app = express();
+const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
 
+const app = express();
 // ?========================================================================================================================================================================
 // security HTTP HEADERS in middleware
 app.use(helmet());
@@ -30,7 +31,9 @@ app.use((req, res, next) => {
   //if u forget to add next the resposne will be blocked
   next();
 });
-
+// data santizing against NoSQL query injection it filter all the dollar signes and the dots in the query body or params or searchParams
+app.use(expressMongoSanitize());
+// this provide html  syntax for security
 //static file serving with middleware
 app.use(express.static(`${__dirname}/public`));
 
