@@ -19,6 +19,28 @@ const signToken = (id: any, email: string, photo: string) => {
   );
 };
 
+const createSendToken = (user: any, statusCode: number, res: any) => {
+  const token = signToken(user._id, user.email, user.photo);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() +
+        parseInt(process.env.JWT_EXPIRES_IN ?? '7d') * 24 * 60 * 60 * 1000
+    ),
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+  };
+  res.cookie('jwt', token, cookieOptions);
+  user.password = undefined;
+  user.passwordConfirm = undefined;
+  res.status(statusCode).json({
+    status: 'success',
+    token: token,
+    data: {
+      user: user,
+    },
+  });
+};
+
 export const signup = catchAsync(async (req: any, res: any) => {
   const newUser = await User.create({
     email: req.body.email,
@@ -28,15 +50,8 @@ export const signup = catchAsync(async (req: any, res: any) => {
     photo: req.body.photo,
     role: 'user',
   });
-  // first argument is the payload, second is the secret key .. // third is the options like expiration time of the jwt token
-  const token = signToken(newUser._id, newUser.email, newUser.photo);
-  res.status(201).json({
-    status: 'success',
-    token: token,
-    data: {
-      user: newUser,
-    },
-  });
+
+  createSendToken(newUser, 201, res);
 });
 
 export const login = catchAsync(async (req: any, res: any, next) => {
@@ -71,12 +86,7 @@ export const login = catchAsync(async (req: any, res: any, next) => {
     });
   }
 
-  const token = signToken(user._id, user.email, user.photo);
-
-  res.status(200).json({
-    status: 'success',
-    token: token,
-  });
+  createSendToken(user, 200, res);
 });
 
 export const protectedMiddlewareRoute = catchAsync(
@@ -225,11 +235,7 @@ export const resetPassword = async (req: any, res: any, next: any) => {
   await user.save(); // Save the user with the new password
 
   //4) log the user in and send jwt optional!
-  const token = signToken(user._id, user.email, user.photo);
-  res.status(200).json({
-    status: 'success',
-    token: token,
-  });
+  createSendToken(user, 200, res);
 };
 
 export const updatePassword = catchAsync(
@@ -261,11 +267,7 @@ export const updatePassword = catchAsync(
     user.save();
     // we do user.save() not all in one as findByIdAndUpdate, because it will not trigger the pre save middleeware aand also the validate of the passwordConfirm field
 
-    const token = signToken(user._id, user.email, user.photo);
-    //4) log user in , send jwt
-    res.status(200).json({
-      status: 'success',
-      token: token,
-    });
+    //4) log the user in and send jwt optional!
+    createSendToken(user, 200, res);
   }
 );
