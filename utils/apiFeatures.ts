@@ -2,6 +2,12 @@ export class APIFeatures {
   //query is the mongoose query and queryString is the one come from toute
 
   constructor(public query: any, private queryString: any) {
+    // preventing parameter pollution
+    // for (const key in queryString) {
+    //   if (Array.isArray(queryString[key])) {
+    //     queryString[key] = queryString[key][queryString[key].length - 1];
+    //   }
+    // }
     this.query = query;
     this.queryString = queryString;
   }
