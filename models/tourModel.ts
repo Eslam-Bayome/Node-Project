@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+// import { User } from './userModel';
 
 // const validator = require('validator');
 
@@ -10,7 +11,7 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true,
-      maxLength: [20, 'A tour name must have less or equal than 20 characters'],
+      maxLength: [30, 'A tour name must have less or equal than 30 characters'],
       minLength: [5, 'A tour name must have more or equal than 5 characters'],
       immutable: true, // this will make the name immutable, it can't be changed after creation
       // validate: {
@@ -123,6 +124,12 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: {
@@ -146,6 +153,12 @@ tourSchema.pre('save', function (next) {
 
   next();
 });
+// we dont empbeding data from other documents we will use referencing instead
+// tourSchema.pre('save', async function (next) {
+//   const guides = this.guides.map(async (id: string) => await User.findById(id));
+//   this.guides = await Promise.all(guides);
+//   next();
+// });
 
 // it execute after all the pre middleware executed and we dont have this keyword we just have the doc  after it saved in db
 tourSchema.post('save', (doc, next) => {

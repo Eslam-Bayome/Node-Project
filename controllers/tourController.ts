@@ -54,7 +54,10 @@ const getAllTours = async (req: Request, res: Response) => {
 const getTour = async (req: Request, res: Response) => {
   try {
     //id come here from where we define it from route file
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate({
+      path: 'guides',
+      select: '-__v -lastPasswordChangeAt',
+    });
     // findById = =Tour.findOne({_id:req.params.id})
     res.status(200).json({
       status: 'success',
