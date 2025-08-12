@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import { isAlpha } from 'validator';
+
+// const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -12,13 +13,13 @@ const tourSchema = new mongoose.Schema(
       maxLength: [20, 'A tour name must have less or equal than 20 characters'],
       minLength: [5, 'A tour name must have more or equal than 5 characters'],
       immutable: true, // this will make the name immutable, it can't be changed after creation
-      validate: {
-        validator: function (val) {
-          // Only check alphabetic characters and ignore spaces
-          return isAlpha(val.replaceAll(' ', ''));
-        },
-        message: 'A tour name must only contain alphabetic characters',
-      },
+      // validate: {
+      //   validator: function (val) {
+      //     // Only check alphabetic characters and ignore spaces
+      //     return validator.isAlpha(val.replaceAll(' ', ''));
+      //   },
+      //   message: 'A tour name must only contain alphabetic characters',
+      // },
     },
     duration: {
       type: Number,
@@ -97,6 +98,31 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // GeoJSON , thats the format of the location data
+      typs: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    // embedded documents with array of objects GeoJSON
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     toJSON: {
