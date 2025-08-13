@@ -10,7 +10,7 @@ import {
   getMonthlyPlan,
 } from '../controllers/tourController';
 import {
-  isUserhasAllowedRole,
+  isUserHasAllowedRole,
   protectedMiddlewareRoute,
 } from '../controllers/authController';
 
@@ -33,7 +33,7 @@ tourRouter.patch(`/:id`, updateTour);
 tourRouter.delete(
   `/:id`,
   protectedMiddlewareRoute, // this middleware will check if the user is logged in
-  isUserhasAllowedRole('admin', 'lead-guide'), // this middleware will check if the user has the allowed role
+  isUserHasAllowedRole('admin', 'lead-guide'), // this middleware will check if the user has the allowed role
   deleteTour
 );
 

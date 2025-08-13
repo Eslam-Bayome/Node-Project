@@ -4,6 +4,7 @@ import userRouter from './routes/userRoutes';
 import tourRouter from './routes/tourRoutes';
 import { limiter } from './utils/rateLimiter';
 import helmet from 'helmet';
+import { reviewRouter } from './routes/reviewRoutes';
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
 
 const app = express();
@@ -55,6 +56,8 @@ app.use(
 app.use('/api/v1/tours', tourRouter);
 
 app.use('/api/v1/users', userRouter);
+
+app.use('/api/v1/reviews', reviewRouter);
 
 // ?========================================================================================================================================================================
 module.exports = app;
