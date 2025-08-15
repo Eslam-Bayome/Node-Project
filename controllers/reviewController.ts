@@ -18,10 +18,14 @@ const createReview = catchAsync(async (req: any, res, next) => {
   next();
 });
 const getAllReviews = catchAsync(async (req, res, next) => {
-  const features = new APIFeatures(Review.find(), req.query);
+  const filter: any = {};
+  if (req?.params?.tourId) filter.tour = req.params.tourId;
+  // const features = new APIFeatures(Review.find(), req.query);
 
-  const finalQuery = features.filter().sort().limitFields().paginate();
-  const reviews = await finalQuery.query;
+  // const finalQuery = features.filter().sort().limitFields().paginate();
+  // const reviews = await finalQuery.query;
+
+  const reviews = await Review.find(filter);
 
   res.status(200).json({
     status: 'success',
