@@ -20,6 +20,7 @@ const createReview = catchAsync(async (req: any, res, next) => {
 const getAllReviews = catchAsync(async (req, res, next) => {
   const filter: any = {};
   if (req?.params?.tourId) filter.tour = req.params.tourId;
+  if (req?.params?.userId) filter.user = req.params.userId;
   // const features = new APIFeatures(Review.find(), req.query);
 
   // const finalQuery = features.filter().sort().limitFields().paginate();

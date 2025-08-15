@@ -8,6 +8,7 @@ import {
   updatePassword,
 } from '../controllers/authController';
 import { limiter } from '../utils/rateLimiter';
+import { reviewRouter } from './reviewRoutes';
 const {
   getAllUsers,
   getUser,
@@ -21,6 +22,8 @@ const {
 // this process called mounting a router , so mounting new router on a route
 
 const userRouter = express.Router();
+
+userRouter.use('users/:userId/reviews', reviewRouter);
 
 userRouter.post('/signup', limiter(1, 3), signup);
 userRouter.post('/login', limiter(1, 3), login);
