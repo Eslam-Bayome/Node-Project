@@ -13,8 +13,11 @@ import {
   isUserHasAllowedRole,
   protectedMiddlewareRoute,
 } from '../controllers/authController';
+import { reviewRouter } from './reviewRoutes';
 
 const tourRouter = express.Router();
+
+tourRouter.use(`/:tourId/reviews`, reviewRouter);
 
 tourRouter.route('/tour-stats').get(getTourStats);
 tourRouter.route('/monthly-stats').get(getMonthlyPlan);

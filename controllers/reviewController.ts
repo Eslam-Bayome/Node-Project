@@ -2,7 +2,11 @@ import { Review } from '../models/reviewModel';
 import { APIFeatures } from '../utils/apiFeatures';
 import { catchAsync } from '../utils/catchAsync';
 
-const createReview = catchAsync(async (req, res, next) => {
+const createReview = catchAsync(async (req: any, res, next) => {
+  // allowed for nested routes
+  if (req?.params?.tourId && !req.body.tour) req.body.tour = req.params.tourId;
+  if (req?.user?.id && !req.body.user) req.body.user = req.user.id;
+
   const rev = await Review.create(req.body);
 
   res.status(201).json({
