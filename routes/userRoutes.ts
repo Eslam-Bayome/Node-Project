@@ -51,5 +51,6 @@ userRouter.delete(
 //? ==============================================================================================================================================================================================3
 userRouter.route('/').get(getAllUsers).post(createUser);
 userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+userRouter.route('/:id').delete(protectedMiddlewareRoute, deleteUser);
 
 export default userRouter;

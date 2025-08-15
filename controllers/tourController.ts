@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Tour } from '../models/tourModel';
 import { APIFeatures } from '../utils/apiFeatures';
+import { deleteOne } from './handlerFactory';
 
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours.json`, 'utf-8')
@@ -119,18 +120,20 @@ const updateTour = async (req: Request, res: Response) => {
     handleError(err, req, res);
   }
 };
-const deleteTour = async (req: Request, res: Response) => {
-  try {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-    //204 no content
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    handleError(err, req, res);
-  }
-};
+// const deleteTour = async (req: Request, res: Response) => {
+//   try {
+//     const tour = await Tour.findByIdAndDelete(req.params.id);
+//     //204 no content
+//     res.status(204).json({
+//       status: 'success',
+//       data: null,
+//     });
+//   } catch (err) {
+//     handleError(err, req, res);
+//   }
+// };
+
+const deleteTour = deleteOne(Tour);
 
 const getTourStats = async (req: Request, res: Response) => {
   try {

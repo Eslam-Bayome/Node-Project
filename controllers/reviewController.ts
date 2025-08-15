@@ -1,6 +1,7 @@
 import { Review } from '../models/reviewModel';
 import { APIFeatures } from '../utils/apiFeatures';
 import { catchAsync } from '../utils/catchAsync';
+import { deleteOne } from './handlerFactory';
 
 const createReview = catchAsync(async (req: any, res, next) => {
   // allowed for nested routes
@@ -37,4 +38,6 @@ const getAllReviews = catchAsync(async (req, res, next) => {
   });
 });
 
-export { createReview, getAllReviews };
+const deleteReview = deleteOne(Review);
+
+export { createReview, getAllReviews, deleteReview };
