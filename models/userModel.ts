@@ -67,7 +67,11 @@ const userSchema = new mongoose.Schema({
   passwordResetToken: String,
   passwordResetExpires: Date,
 });
-
+// userSchema.virtual('reviews', {
+//   ref: 'Review',
+//   foreignField: 'user',
+//   localField: '_id',
+// });
 userSchema.pre('find', function (next) {
   this.find({ active: { $ne: false } });
   next();
