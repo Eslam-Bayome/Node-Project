@@ -3,7 +3,13 @@ import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { Tour } from '../models/tourModel';
 import { APIFeatures } from '../utils/apiFeatures';
-import { deleteOne } from './handlerFactory';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from './handlerFactory';
 
 // const tours = JSON.parse(
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours.json`, 'utf-8')
@@ -22,104 +28,112 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
   (req as any).myQuery.fields = 'name,price,averageRating,summary,difficulty';
   next();
 };
-const getAllTours = async (req: Request, res: Response) => {
-  let modifiedQuery = req.query;
+// const getAllTours = async (req: Request, res: Response) => {
+//   let modifiedQuery = req.query;
 
-  if ((req as any).myQuery) {
-    modifiedQuery = {
-      ...req.query,
-      ...(req as any).myQuery,
-    };
-  }
+//   if ((req as any).myQuery) {
+//     modifiedQuery = {
+//       ...req.query,
+//       ...(req as any).myQuery,
+//     };
+//   }
 
-  try {
-    const features = new APIFeatures(Tour.find(), modifiedQuery);
-    let finalQuery = features.filter().sort().limitFields().paginate();
+//   try {
+//     const features = new APIFeatures(Tour.find(), modifiedQuery);
+//     let finalQuery = features.filter().sort().limitFields().paginate();
 
-    //Execution query
-    const tours = await finalQuery.query;
+//     //Execution query
+//     const tours = await finalQuery.query;
 
-    //Send Response
-    res.status(200).json({
-      status: 'success',
-      totalCount: tours.length,
-      data: {
-        tours,
-      },
-    });
-  } catch (err) {
-    handleError(err, req, res);
-  }
-};
+//     //Send Response
+//     res.status(200).json({
+//       status: 'success',
+//       totalCount: tours.length,
+//       data: {
+//         tours,
+//       },
+//     });
+//   } catch (err) {
+//     handleError(err, req, res);
+//   }
+// };
 
-const getTour = async (req: Request, res: Response) => {
-  try {
-    //id come here from where we define it from route file
-    const tour = await Tour.findById(req.params.id)
-      .populate({
-        path: 'guides',
-        select: '-__v -lastPasswordChangeAt',
-      })
-      .populate({
-        path: 'reviews',
-      });
-    // findById = =Tour.findOne({_id:req.params.id})
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    handleError(err, req, res);
-  }
-};
-const createTour = async (req: Request, res: Response) => {
-  // const newTours = new Tour({
-  //   name: req.body.name,
-  //   price: req.body.price,
-  // });
-  // newTours.save()
+// const getTour = async (req: Request, res: Response) => {
+//   try {
+//     //id come here from where we define it from route file
+//     const tour = await Tour.findById(req.params.id)
+//       .populate({
+//         path: 'guides',
+//         select: '-__v -lastPasswordChangeAt',
+//       })
+//       .populate({
+//         path: 'reviews',
+//       });
+//     // findById = =Tour.findOne({_id:req.params.id})
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         tour,
+//       },
+//     });
+//   } catch (err) {
+//     handleError(err, req, res);
+//   }
+// };
 
-  try {
-    const newTours = await Tour.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTours,
-      },
-    });
-  } catch (err) {
-    //400 bad request
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+const getTour = getOne(Tour, [
+  {
+    path: 'guides',
+    select: '-__v -lastPasswordChangeAt',
+  },
+  'reviews',
+]);
+// const createTour = async (req: Request, res: Response) => {
+//   // const newTours = new Tour({
+//   //   name: req.body.name,
+//   //   price: req.body.price,
+//   // });
+//   // newTours.save()
 
-const updateTour = async (req: Request, res: Response) => {
-  try {
-    const date = new Date().toISOString();
-    req.body.updatedAt = date;
-    //new:true is to return the updated data after update  not the previous
-    // const tour = await Tour.updateOne({ _id: req.params.id }, req.body, {
-    //   new: true,
-    // });
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true, // if it is false the validato will not rereun and this may lead to unwanted data
-    });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  } catch (err) {
-    handleError(err, req, res);
-  }
-};
+//   try {
+//     const newTours = await Tour.create(req.body);
+//     res.status(201).json({
+//       status: 'success',
+//       data: {
+//         tour: newTours,
+//       },
+//     });
+//   } catch (err) {
+//     //400 bad request
+//     res.status(400).json({
+//       status: 'fail',
+//       message: err,
+//     });
+//   }
+// };
+
+// const updateTour = async (req: Request, res: Response) => {
+//   try {
+//     const date = new Date().toISOString();
+//     req.body.updatedAt = date;
+//     //new:true is to return the updated data after update  not the previous
+//     // const tour = await Tour.updateOne({ _id: req.params.id }, req.body, {
+//     //   new: true,
+//     // });
+//     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//       runValidators: true, // if it is false the validato will not rereun and this may lead to unwanted data
+//     });
+//     res.status(200).json({
+//       status: 'success',
+//       data: {
+//         tour,
+//       },
+//     });
+//   } catch (err) {
+//     handleError(err, req, res);
+//   }
+// };
 // const deleteTour = async (req: Request, res: Response) => {
 //   try {
 //     const tour = await Tour.findByIdAndDelete(req.params.id);
@@ -132,8 +146,6 @@ const updateTour = async (req: Request, res: Response) => {
 //     handleError(err, req, res);
 //   }
 // };
-
-const deleteTour = deleteOne(Tour);
 
 const getTourStats = async (req: Request, res: Response) => {
   try {
@@ -244,6 +256,11 @@ const getMonthlyPlan = async (req: Request, res: Response) => {
     handleError(err, req, res);
   }
 };
+
+const updateTour = updateOne(Tour);
+const deleteTour = deleteOne(Tour);
+const createTour = createOne(Tour);
+const getAllTours = getAll(Tour);
 
 export {
   getAllTours,

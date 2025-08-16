@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { User } from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
-import { deleteOne } from './handlerFactory';
+import { deleteOne, getOne, updateOne } from './handlerFactory';
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const users = await User.find({
@@ -17,12 +17,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
-const getUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
+
 const updateMe = catchAsync(
   async (req: any, res: Response, next: NextFunction) => {
     if (
@@ -77,13 +72,10 @@ const createUser = (req: Request, res: Response) => {
     message: 'This route is not yet defined',
   });
 };
-const updateUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined',
-  });
-};
+
 const deleteUser = deleteOne(User);
+const updateUser = updateOne(User);
+const getUser = getOne(User);
 
 module.exports = {
   getAllUsers,
