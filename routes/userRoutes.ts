@@ -17,6 +17,7 @@ const {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 } = require('./../controllers/userController');
 
 // this process called mounting a router , so mounting new router on a route
@@ -48,6 +49,7 @@ userRouter.delete(
   deleteMe
 );
 
+userRouter.get('/me', protectedMiddlewareRoute, getMe, getUser);
 //? ==============================================================================================================================================================================================3
 userRouter.route('/').get(getAllUsers).post(createUser);
 userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);

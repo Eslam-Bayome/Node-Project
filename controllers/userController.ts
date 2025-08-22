@@ -49,6 +49,10 @@ const updateMe = catchAsync(
     });
   }
 );
+const getMe = (req: any, res: Response, next: NextFunction) => {
+  req.params.id = req.user.id;
+  next();
+};
 const deleteMe = catchAsync(async (req: any, res: Response) => {
   const deletedUser = await User.findByIdAndUpdate(
     req.user.id,
@@ -85,6 +89,7 @@ module.exports = {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 };
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');
