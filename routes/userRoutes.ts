@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  allowedRoles,
   forgetPassword,
   login,
   protectedMiddlewareRoute,
@@ -30,29 +31,19 @@ userRouter.post('/signup', limiter(1, 3), signup);
 userRouter.post('/login', limiter(1, 3), login);
 userRouter.post('/forget-password', limiter(1, 3), forgetPassword);
 userRouter.patch('/reset-password/:token', limiter(1, 3), resetPassword);
-userRouter.patch(
-  '/update-password',
-  limiter(1, 3),
-  protectedMiddlewareRoute,
-  updatePassword
-);
-userRouter.patch(
-  '/update-me',
-  limiter(1, 3),
-  protectedMiddlewareRoute,
-  updateMe
-);
-userRouter.delete(
-  '/delete-me',
-  limiter(1, 3),
-  protectedMiddlewareRoute,
-  deleteMe
-);
 
-userRouter.get('/me', protectedMiddlewareRoute, getMe, getUser);
+userRouter.use(protectedMiddlewareRoute);
+
+userRouter.patch('/update-password', limiter(1, 3), updatePassword);
+userRouter.patch('/update-me', limiter(1, 3), updateMe);
+userRouter.delete('/delete-me', limiter(1, 3), deleteMe);
+
+userRouter.get('/me', getMe, getUser);
 //? ==============================================================================================================================================================================================3
+userRouter.use(allowedRoles('admin'));
+
 userRouter.route('/').get(getAllUsers).post(createUser);
-userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
-userRouter.route('/:id').delete(protectedMiddlewareRoute, deleteUser);
+userRouter.route('/:id');
+userRouter.route('/:id').delete(deleteUser);
 
 export default userRouter;

@@ -10,7 +10,7 @@ import {
   getMonthlyPlan,
 } from '../controllers/tourController';
 import {
-  isUserHasAllowedRole,
+  allowedRoles,
   protectedMiddlewareRoute,
 } from '../controllers/authController';
 import { reviewRouter } from './reviewRoutes';
@@ -20,23 +20,38 @@ const tourRouter = express.Router();
 tourRouter.use(`/:tourId/reviews`, reviewRouter);
 
 tourRouter.route('/tour-stats').get(getTourStats);
-tourRouter.route('/monthly-stats').get(getMonthlyPlan);
+tourRouter
+  .route('/monthly-stats')
+  .get(
+    protectedMiddlewareRoute,
+    allowedRoles('admin', 'lead-guide', 'guide'),
+    getMonthlyPlan
+  );
 
 // ? a param middle ware is a function that is called when a request matches a route parameter and it check if it have a valid id
 // tourRouter.param('id', checkId);
 tourRouter.route('/top-5').get(aliasTopTours, getAllTours);
-tourRouter.get(`/`, protectedMiddlewareRoute, getAllTours);
+tourRouter.get(`/`, getAllTours);
 
 tourRouter.get(`/:id`, getTour);
 
-tourRouter.post(`/`, createTour);
+tourRouter.post(
+  `/`,
+  protectedMiddlewareRoute,
+  allowedRoles('admin', 'lead-guide')
+);
 
-tourRouter.patch(`/:id`, updateTour);
+tourRouter.patch(
+  `/:id`,
+  protectedMiddlewareRoute,
+  allowedRoles('admin', 'lead-guide'),
+  updateTour
+);
 
 tourRouter.delete(
   `/:id`,
   protectedMiddlewareRoute, // this middleware will check if the user is logged in
-  isUserHasAllowedRole('admin', 'lead-guide'), // this middleware will check if the user has the allowed role
+  allowedRoles('admin', 'lead-guide'), // this middleware will check if the user has the allowed role
   deleteTour
 );
 

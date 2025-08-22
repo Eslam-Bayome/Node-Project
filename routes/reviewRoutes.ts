@@ -1,4 +1,7 @@
-import { protectedMiddlewareRoute } from '../controllers/authController';
+import {
+  allowedRoles,
+  protectedMiddlewareRoute,
+} from '../controllers/authController';
 import {
   createReview,
   deleteReview,
@@ -15,9 +18,10 @@ export const reviewRouter = express.Router({
 });
 
 reviewRouter.route('/').get(getAllReviews);
-reviewRouter.route('/:id').delete(protectedMiddlewareRoute, deleteReview);
 reviewRouter.route('/:id').get(getReview);
-reviewRouter.route('/:id').patch(protectedMiddlewareRoute, updateReview);
-reviewRouter
-  .route('/')
-  .post(protectedMiddlewareRoute, setTourAndUserIds, createReview);
+
+reviewRouter.use(protectedMiddlewareRoute);
+
+reviewRouter.route('/:id').delete(allowedRoles('user', 'admin'), deleteReview);
+reviewRouter.route('/:id').patch(allowedRoles('user', 'admin'), updateReview);
+reviewRouter.route('/').post(setTourAndUserIds, createReview);

@@ -145,7 +145,9 @@ export const protectedMiddlewareRoute = catchAsync(
   }
 );
 
-export const isUserHasAllowedRole = (...roles: string[]) => {
+export const allowedRoles = (
+  ...roles: Array<'admin' | 'lead-guide' | 'user' | 'guide'>
+) => {
   return (req: any, res: any, next: any) => {
     if (!req.user) {
       return res.status(401).json({
