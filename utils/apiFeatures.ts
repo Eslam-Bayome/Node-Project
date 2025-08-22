@@ -1,3 +1,5 @@
+import { createAdvancedFilter } from './createAdvancedFilter';
+
 export class APIFeatures {
   //query is the mongoose query and queryString is the one come from toute
 
@@ -13,13 +15,13 @@ export class APIFeatures {
   }
 
   filter() {
-    let { keyword, durationGte, limit, sort, page, fields, ...rest } =
-      this.queryString;
+    let { keyword, limit, sort, page, fields, ...rest } = this.queryString;
+
+    const newQueries = createAdvancedFilter(rest);
 
     this.query = this.query.find({
       ...(keyword ? { name: { $regex: keyword, $options: 'i' } } : {}),
-      ...(durationGte ? { duration: { $gte: durationGte } } : {}),
-      ...rest,
+      ...newQueries,
     });
 
     return this;

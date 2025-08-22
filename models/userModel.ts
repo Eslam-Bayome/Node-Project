@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 // Simple interface - just extend Document directly
 interface IUser extends Document {
   name: string;
