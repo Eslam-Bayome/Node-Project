@@ -38,6 +38,8 @@ const reviewSchema = new mongoose.Schema(
     },
   }
 );
+
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 reviewSchema.statics.calcAvgRatings = async function (tourId) {
   // we make it static method so we can call the aggregate method in the model
   const stats = await this.aggregate([
