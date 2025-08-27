@@ -5,8 +5,9 @@ import tourRouter from './routes/tourRoutes';
 import { limiter } from './utils/rateLimiter';
 import helmet from 'helmet';
 import { reviewRouter } from './routes/reviewRoutes';
+import { AppError } from './utils/appError';
 const expressMongoSanitize = require('@exortek/express-mongo-sanitize');
-
+const globalErrorHandler = require('./controllers/errorController');
 const app = express();
 // ?========================================================================================================================================================================
 // security HTTP HEADERS in middleware
@@ -59,5 +60,15 @@ app.use('/api/v1/users', userRouter);
 
 app.use('/api/v1/reviews', reviewRouter);
 
+//middlweare that only be reached if the route is not found
+app.use((req, res, next) => {
+  // const err: any = new Error(`Can't find ${req.originalUrl} on this server!`);
+  // err.statusCode = 404;
+  // err.status = 'fail';
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  // when ever we path anything to the next function it will know it is an error adn wioll escape all other middlewares
+});
+
+app.use(globalErrorHandler);
 // ?========================================================================================================================================================================
 module.exports = app;

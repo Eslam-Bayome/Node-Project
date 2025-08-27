@@ -1,17 +1,14 @@
 import { Request, Response } from 'express';
 import { catchAsync } from '../utils/catchAsync';
 import { APIFeatures } from '../utils/apiFeatures';
+import { AppError } from '../utils/appError';
 
 export const deleteOne = (Model: any) =>
-  catchAsync(async (req: Request, res: Response) => {
+  catchAsync(async (req: Request, res: Response, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No document found with that ID',
-      });
-    }
+    if (!doc) return next(new AppError('No document found with that ID', 404));
+
     //204 no content
     res.status(204).json({
       status: 'success',
@@ -20,19 +17,15 @@ export const deleteOne = (Model: any) =>
   });
 
 export const updateOne = (Model: any) =>
-  catchAsync(async (req: Request, res: Response) => {
+  catchAsync(async (req: Request, res: Response, next) => {
     const date = new Date().toISOString();
     req.body.updatedAt = date;
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true, // if it is false the validato will not rereun and this may lead to unwanted data
     });
-    if (!doc) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No document found with that ID',
-      });
-    }
+    if (!doc) return next(new AppError('No document found with that ID', 404));
+
     res.status(200).json({
       status: 'success',
       data: {
@@ -53,19 +46,14 @@ export const createOne = (Model: any) =>
   });
 
 export const getOne = (Model: any, populateOptions?: Array<any>) =>
-  catchAsync(async (req: Request, res: Response) => {
+  catchAsync(async (req: Request, res: Response, next) => {
     let query = Model.findById(req.params.id);
     if (populateOptions?.length)
       query = populateOptions.reduce((acc, curr) => acc.populate(curr), query);
 
     const doc = await query;
 
-    if (!doc) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'No document found with that ID',
-      });
-    }
+    if (!doc) return next(new AppError('No document found with that ID', 404));
 
     res.status(200).json({
       status: 'success',

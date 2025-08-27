@@ -38,7 +38,8 @@ tourRouter.get(`/:id`, getTour);
 tourRouter.post(
   `/`,
   protectedMiddlewareRoute,
-  allowedRoles('admin', 'lead-guide')
+  allowedRoles('admin', 'lead-guide'),
+  createTour
 );
 
 tourRouter.patch(
